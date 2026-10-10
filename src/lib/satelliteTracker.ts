@@ -862,10 +862,6 @@ export function calculateSatellitePosition(noradId: number, date: Date): Satelli
 
 export type GroundTrackSegment = [number, number][]
 
-interface GroundTrackAnchor {
-  latitude: number
-  longitude: number
-}
 
 function getOrbitalPeriodMinutes(satrec: satellite.SatRec): number {
   const periodMinutes = (2 * Math.PI) / satrec.no
@@ -878,8 +874,7 @@ function getOrbitalPeriodMinutes(satrec: satellite.SatRec): number {
 export function calculateSatelliteGroundTrack(
   noradId: number | null,
   date: Date,
-  samples = 145,
-  anchorPoint?: GroundTrackAnchor
+  samples = 145
 ): GroundTrackSegment[] {
   const satrec = getSatelliteRecord(noradId)
   if (!satrec) return []
@@ -889,7 +884,6 @@ export function calculateSatelliteGroundTrack(
   const sampleCount = boundedSampleCount % 2 === 0
     ? boundedSampleCount + 1
     : boundedSampleCount
-  const centerIndex = Math.floor(sampleCount / 2)
   const stepMinutes = periodMinutes / (sampleCount - 1)
   const startOffsetMinutes = -periodMinutes / 2
   const segments: GroundTrackSegment[] = []
@@ -908,9 +902,10 @@ export function calculateSatelliteGroundTrack(
       continue
     }
 
-    const point: [number, number] = anchorPoint && i === centerIndex
-      ? [anchorPoint.latitude, anchorPoint.longitude]
-      : [propagated.latitude, propagated.longitude]
+    const point: [number, number] = [
+      propagated.latitude,
+      propagated.longitude,
+]
 
     if (previousLongitude !== null && Math.abs(point[1] - previousLongitude) > 180) {
       if (segment.length > 1) segments.push(segment)

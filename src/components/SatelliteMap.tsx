@@ -6,6 +6,7 @@ import { Home } from 'lucide-react'
 import satIconUrl from '../assets/satellite-icon.svg'
 import 'leaflet/dist/leaflet.css'
 import { calculateSatelliteGroundTrack } from '../lib/satelliteTracker'
+const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY
 
 interface SatellitePosition {
   id: number | string
@@ -104,24 +105,22 @@ export default function SatelliteMap({ satellites, selectedSatellite, onSelectSa
     []
   )
   
-  const orbitPath = useMemo(() => {
-    if (!trackedSatellite || trackedSatellite.isDeepSpace) return []
+  
+const orbitPath = useMemo(() => {
+  if (!trackedSatellite || trackedSatellite.isDeepSpace) return []
 
-    return calculateSatelliteGroundTrack(
-      trackedSatellite.noradId,
-      trackedSatellite.lastUpdate ?? new Date(),
-      145,
-      {
-        latitude: trackedSatellite.latitude,
-        longitude: trackedSatellite.longitude
-      }
-    )
-  }, [
-    trackedSatellite?.noradId,
-    trackedSatellite?.lastUpdate,
-    trackedSatellite?.latitude,
-    trackedSatellite?.longitude
-  ])
+  return calculateSatelliteGroundTrack(
+    trackedSatellite.noradId,
+    trackedSatellite.lastUpdate ?? new Date(),
+    145
+  )
+}, [
+  trackedSatellite?.noradId,
+  trackedSatellite?.lastUpdate,
+  trackedSatellite?.latitude,
+  trackedSatellite?.longitude
+])
+
 
   const handleHomeClick = () => {
     const map = mapRef.current
@@ -170,10 +169,9 @@ export default function SatelliteMap({ satellites, selectedSatellite, onSelectSa
         scrollWheelZoom={true}
         doubleClickZoom={true}
       >
-        {/* Dark theme map tiles */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://carto.com/">CARTO</a>'
+          url={`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`}
         />
 
         {/* Map controller for animations */}
